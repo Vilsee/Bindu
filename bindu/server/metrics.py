@@ -262,16 +262,24 @@ class PrometheusMetrics:
                 lines.append("")
                 lines.append("# HELP http_request_size_bytes HTTP request body size")
                 lines.append("# TYPE http_request_size_bytes summary")
-                lines.append(f"http_request_size_bytes_sum {self._http_request_size_sum:.0f}")
-                lines.append(f"http_request_size_bytes_count {self._http_request_size_count}")
+                lines.append(
+                    f"http_request_size_bytes_sum {self._http_request_size_sum:.0f}"
+                )
+                lines.append(
+                    f"http_request_size_bytes_count {self._http_request_size_count}"
+                )
 
             # Response size metrics
             if self._http_response_size_count > 0:
                 lines.append("")
                 lines.append("# HELP http_response_size_bytes HTTP response body size")
                 lines.append("# TYPE http_response_size_bytes summary")
-                lines.append(f"http_response_size_bytes_sum {self._http_response_size_sum:.0f}")
-                lines.append(f"http_response_size_bytes_count {self._http_response_size_count}")
+                lines.append(
+                    f"http_response_size_bytes_sum {self._http_response_size_sum:.0f}"
+                )
+                lines.append(
+                    f"http_response_size_bytes_count {self._http_response_size_count}"
+                )
 
             # Requests in flight
             lines.append("")
