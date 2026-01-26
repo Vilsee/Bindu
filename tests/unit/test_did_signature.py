@@ -273,8 +273,9 @@ class TestGetPublicKeyFromHydra:
         public_key = await get_public_key_from_hydra("did:key:test", mock_hydra)
 
         assert (
-            public_key == "z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK"
-        )  # pragma: allowlist secret
+            public_key
+            == "z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK"  # pragma: allowlist secret
+        )
 
     async def test_get_public_key_not_found(self):
         """Test when client is not found."""

@@ -302,7 +302,7 @@ class TestHybridAuthClient:
             "bindu.utils.hybrid_auth_client.load_agent_credentials",
             return_value=MagicMock(
                 client_id=mock_did_extension.did,
-                client_secret="test_secret",
+                client_secret="test_secret",  # pragma: allowlist secret
                 scopes=["agent:read", "agent:write"],
             ),
         ):
