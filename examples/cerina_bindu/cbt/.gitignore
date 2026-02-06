@@ -27,7 +27,7 @@ Thumbs.db
 *.sqlite
 *.sqlite3
 
-# DID keys 
+# DID keys
 .bindu/
 
 # Logs

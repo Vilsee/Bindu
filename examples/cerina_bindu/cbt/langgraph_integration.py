@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional
-from datetime import datetime
 
 from dotenv import load_dotenv
 
@@ -11,8 +10,7 @@ load_dotenv(dotenv_path=cbt_env_path)
 
 from langchain_openai import ChatOpenAI
 from .workflow import create_workflow
-from .state import ProtocolState, create_initial_state
-
+from .state import create_initial_state
 
 
 def get_llm_client(api_key: Optional[str] = None) -> ChatOpenAI:
@@ -30,7 +28,6 @@ def get_llm_client(api_key: Optional[str] = None) -> ChatOpenAI:
 
 
 class LangGraphWorkflowAdapter:
-
     def __init__(self):
         self.workflow = None
         self._initialized = False
@@ -52,11 +49,9 @@ class LangGraphWorkflowAdapter:
 
         # Use Cerina's create_initial_state helper to ensure all required fields are present
         input_state = create_initial_state(
-            user_intent=user_intent,
-            session_id=thread_id,
-            max_iterations=3
+            user_intent=user_intent, session_id=thread_id, max_iterations=3
         )
-        
+
         # Update with our metadata
         input_state["metadata"] = metadata or {}
         input_state["metadata"]["task_id"] = task_id
@@ -67,9 +62,10 @@ class LangGraphWorkflowAdapter:
         try:
             # Use ainvoke directly - simpler and more reliable than manual astream merging
             final_state = await self.workflow.ainvoke(input_state, config)
-                
+
         except Exception as e:
             import traceback
+
             print(f"DEBUG: astream error: {e}")
             print(f"DEBUG: Traceback: {traceback.format_exc()}")
             # Fall back to ainvoke if astream fails
@@ -78,7 +74,7 @@ class LangGraphWorkflowAdapter:
             except Exception as e2:
                 print(f"DEBUG: ainvoke also failed: {e2}")
                 raise
-        
+
         # Convert to dict if it's a Pydantic model, with fallback
         try:
             if hasattr(final_state, "dict"):
@@ -94,26 +90,44 @@ class LangGraphWorkflowAdapter:
                     state_dict = dict(final_state)
                 except:
                     # If that fails, try vars()
-                    state_dict = vars(final_state) if hasattr(final_state, '__dict__') else {}
-            
+                    state_dict = (
+                        vars(final_state) if hasattr(final_state, "__dict__") else {}
+                    )
+
             # Remove node execution metadata that shouldn't be in the state
-            node_names = {'init', 'draft', 'safety_review', 'clinical_critique', 'supervisor', 'finalize', '__pregel_pull__'}
+            node_names = {
+                "init",
+                "draft",
+                "safety_review",
+                "clinical_critique",
+                "supervisor",
+                "finalize",
+                "__pregel_pull__",
+            }
             clean_state = {k: v for k, v in state_dict.items() if k not in node_names}
-            
+
             return clean_state if clean_state else state_dict
-            
+
         except Exception as e:
             # If conversion fails, try to extract as much as we can
             import json
+
             try:
                 # Try JSON serialization as last resort
                 json_str = json.dumps(final_state, default=str)
                 parsed = json.loads(json_str)
                 # Remove node metadata
-                node_names = {'init', 'draft', 'safety_review', 'clinical_critique', 'supervisor', 'finalize', '__pregel_pull__'}
+                node_names = {
+                    "init",
+                    "draft",
+                    "safety_review",
+                    "clinical_critique",
+                    "supervisor",
+                    "finalize",
+                    "__pregel_pull__",
+                }
                 return {k: v for k, v in parsed.items() if k not in node_names}
             except:
                 # Return empty dict if all else fails
                 print(f"WARNING: Could not convert final_state to dict: {e}")
                 return {}
-

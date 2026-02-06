@@ -6,9 +6,6 @@ This agent can:
 - Search existing Notion database entries
 """
 
-
-
-
 import os
 from dotenv import load_dotenv
 from bindu.penguin.bindufy import bindufy
@@ -32,6 +29,7 @@ if not OPENROUTER_API_KEY:
 
 notion = Client(auth=NOTION_API_KEY)
 
+
 # -----------------------------
 # Notion Tools
 # -----------------------------
@@ -39,11 +37,16 @@ def create_notion_page(title: str, content: str):
     """Create a page in Notion database"""
     return notion.pages.create(
         parent={"database_id": NOTION_DATABASE_ID},
-        properties={
-            "Name": {"title": [{"text": {"content": title}}]}
-        },
-        children=[{"object": "block", "type": "paragraph", "paragraph": {"text": [{"type": "text", "text": {"content": content}}]}}]
+        properties={"Name": {"title": [{"text": {"content": title}}]}},
+        children=[
+            {
+                "object": "block",
+                "type": "paragraph",
+                "paragraph": {"text": [{"type": "text", "text": {"content": content}}]},
+            }
+        ],
     )
+
 
 def search_notion(query: str):
     """Search pages in Notion database"""
@@ -53,11 +56,12 @@ def search_notion(query: str):
             "filter": {
                 "or": [
                     {"property": "Name", "title": {"contains": query}},
-                    {"property": "Content", "rich_text": {"contains": query}}
+                    {"property": "Content", "rich_text": {"contains": query}},
                 ]
-            }
+            },
         }
     )
+
 
 # -----------------------------
 # Agent Definition
@@ -67,9 +71,9 @@ agent = Agent(
     model=OpenAIChat(
         id="gpt-4o",
         api_key=OPENROUTER_API_KEY,
-        base_url="https://api.openrouter.ai/v1"  # Important: points to OpenRouter
+        base_url="https://api.openrouter.ai/v1",  # Important: points to OpenRouter
     ),
-    tools=[create_notion_page, search_notion]
+    tools=[create_notion_page, search_notion],
 )
 
 # -----------------------------
@@ -80,8 +84,9 @@ config = {
     "name": "agno-notion-agent",
     "description": "Notion assistant agent (OpenRouter)",
     "deployment": {"url": "http://localhost:3773", "expose": True},
-    "skills": ["skills/pdf-processing", "skills/question-answering"]
+    "skills": ["skills/pdf-processing", "skills/question-answering"],
 }
+
 
 # -----------------------------
 # Handler Function
@@ -89,6 +94,7 @@ config = {
 def handler(messages: list[dict[str, str]]):
     """Process messages and return agent response"""
     return agent.run(input=messages)
+
 
 # -----------------------------
 # Start the agent with Bindu

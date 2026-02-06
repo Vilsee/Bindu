@@ -116,8 +116,8 @@ curl -X POST http://localhost:3773/ \
 
 ## Background
 
-This example is based on [Cerina Protocol Foundry](https://github.com/Danish137/cerina-protocol-foundry), 
-a research project for generating therapeutic CBT protocols using multi-agent LLM orchestration. 
+This example is based on [Cerina Protocol Foundry](https://github.com/Danish137/cerina-protocol-foundry),
+a research project for generating therapeutic CBT protocols using multi-agent LLM orchestration.
 
 **For this Bindu integration**, the design has been simplified:
 - **Removed**: SQLite persistence (one-shot invocation, no multi-turn state)
@@ -191,4 +191,3 @@ To extend or modify this example:
 2. Modify workflow logic in `workflow.py`
 3. Add new state fields in `state.py`
 4. Update mappers in `state_mapper.py`
-
