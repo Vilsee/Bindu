@@ -1,14 +1,13 @@
 from agno.agent import Agent
-from agno.models.google import Gemini
-from agno.models.groq import Groq
+from agno.models.openrouter import OpenRouter
 import os
 
 def build_research_agent():
     return Agent(
         name="Researcher",
-        model=Gemini(
-            id="gemini-2.5-flash",
-            api_key=os.getenv("GOOGLE_API_KEY"),
+        model=OpenRouter(
+            id="openai/gpt-oss-120b",
+            api_key=os.getenv("OPENROUTER_API_KEY"),
             temperature=0.3  # Slightly higher for creative research
         ),
 
