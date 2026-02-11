@@ -404,241 +404,76 @@ Output:
 
 <br/>
 
-## 🔐 [Authentication](docs/AUTHENTICATION.md)
+## 🔐 Authentication
 
-Bindu uses **Ory Hydra** OAuth2 for secure API access. Authentication is **optional** - perfect for development without auth.
+Secure API access with **Ory Hydra OAuth2**. Authentication is **optional** - perfect for development without auth.
+
+📖 **[Full Guide →](docs/AUTHENTICATION.md)**
 
 ---
 
-<br/>
-
-## 💰 [Payment Integration (X402)](docs/PAYMENT.md)
+## 💰 Payment Integration (X402)
 
 Monetize your AI agents with **X402 payment protocol** - accept USDC payments on Base blockchain before executing protected methods.
 
+📖 **[Full Guide →](docs/PAYMENT.md)**
 
 ---
 
-<br/>
-
-## 💾 [PostgreSQL Storage](docs/STORAGE.md)
+## 💾 PostgreSQL Storage
 
 Persistent storage for production deployments. **Optional** - InMemoryStorage used by default.
 
+📖 **[Full Guide →](docs/STORAGE.md)**
+
 ---
 
-<br/>
-
-## 📋 [Redis Scheduler](docs/SCHEDULER.md)
+## 📋 Redis Scheduler
 
 Distributed task scheduling for multi-worker deployments. **Optional** - InMemoryScheduler used by default.
 
----
-
-<br/>
-
-## [Retry Mechanism](https://docs.getbindu.com/bindu/learn/retry/overview)
-
-> Automatic retry logic with exponential backoff for resilient Bindu agents
-
-Bindu includes a built-in Tenacity-based retry mechanism to handle transient failures gracefully across workers, storage, schedulers, and API calls. This ensures your agents remain resilient in production environments.
+📖 **[Full Guide →](docs/SCHEDULER.md)**
 
 ---
 
-<br/>
-
-## [Sentry Integration](docs/OBSERVABILITY.md)
-
-> Real-time error tracking and performance monitoring for Bindu agents
-
-Sentry is a real-time error tracking and performance monitoring platform that helps you identify, diagnose, and fix issues in production. Bindu includes built-in Sentry integration to provide comprehensive observability for your AI agents.s
-
----
-
-<br/>
-
-## 🎯 [Skills](docs/SKILLS.md)
+## 🎯 Skills System
 
 Reusable capabilities that agents advertise and execute. Enable intelligent task routing and orchestration.
 
+📖 **[Full Guide →](docs/SKILLS.md)**
+
 ---
 
-<br/>
-
-## 🤝 [Negotiation](docs/NEGOTIATION.md)
+## 🤝 Agent Negotiation
 
 Capability-based agent selection for intelligent orchestration. Query multiple agents and select the best one.
 
----
-
-<br/>
-
-## 📬 [Push Notifications](docs/NOTIFICATIONS.md)
-
-Real-time webhook notifications for task updates. No polling required.
+📖 **[Full Guide →](docs/NEGOTIATION.md)**
 
 ---
 
-<br/>
+## 📬 Push Notifications
 
-## 🔄 Retry Mechanism
+Real-time webhook notifications for task updates. No polling required - get instant updates via webhooks.
 
-Automatic retry with exponential backoff for resilient agents. Handles transient failures gracefully.
-
-📖 **[Retry Documentation →](https://docs.getbindu.com/bindu/learn/retry/overview)**
+📖 **[Full Guide →](docs/NOTIFICATIONS.md)**
 
 ---
-
-<br/>
 
 ## 📊 Observability & Monitoring
 
 Track performance, debug issues, and monitor your agents with **OpenTelemetry** and **Sentry**.
 
-**OpenTelemetry (Langfuse, Arize):**
-```bash
-TELEMETRY_ENABLED=true
-OLTP_ENDPOINT=https://cloud.langfuse.com/api/public/otel/v1/traces
-OLTP_SERVICE_NAME=your-agent-name
-OLTP_HEADERS={"Authorization":"Basic <base64-credentials>"}
-```
-
-**Sentry Error Tracking:**
-```bash
-SENTRY_ENABLED=true
-SENTRY_DSN=https://<key>@<org>.ingest.sentry.io/<project>
-SENTRY_ENVIRONMENT=production
-```
-
-**Features:**
-- Distributed tracing
-- LLM call monitoring
-- Error tracking
-- Performance metrics
-
-📖 **[Full Observability Guide →](docs/OBSERVABILITY.md)** - Platform setup, custom instrumentation, troubleshooting
+� **[Full Guide →](docs/OBSERVABILITY.md)**
 
 ---
 
-<br/>
+## 🔄 Retry Mechanism
 
-## 📬 Push Notifications
+Automatic retry with exponential backoff for resilient agents. Handles transient failures gracefully.
 
-Bindu supports **real-time webhook notifications** for long-running tasks, following the [A2A Protocol specification](https://a2a-protocol.org/latest/specification/). This enables clients to receive push notifications about task state changes and artifact generation without polling.
+📖 **[Full Guide →](https://docs.getbindu.com/bindu/learn/retry/overview)**
 
-### Quick Start
-
-1. **Start webhook receiver:** `python examples/webhook_client_example.py`
-2. **Configure agent** in `examples/echo_agent_with_webhooks.py`:
-   ```python
-   manifest = {
-       "capabilities": {"push_notifications": True},
-       "global_webhook_url": "http://localhost:8000/webhooks/task-updates",
-       "global_webhook_token": "secret_abc123",
-   }
-   ```
-3. **Run agent:** `python examples/echo_agent_with_webhooks.py`
-4. **Send tasks** - webhook notifications arrive automatically
-
-<details>
-<summary><b>View webhook receiver implementation</b> (click to expand)</summary>
-
-```python
-from fastapi import FastAPI, Request, Header, HTTPException
-
-@app.post("/webhooks/task-updates")
-async def handle_task_update(request: Request, authorization: str = Header(None)):
-    if authorization != "Bearer secret_abc123":
-        raise HTTPException(status_code=401)
-
-    event = await request.json()
-
-    if event["kind"] == "status-update":
-        print(f"Task {event['task_id']} state: {event['status']['state']}")
-    elif event["kind"] == "artifact-update":
-        print(f"Artifact generated: {event['artifact']['name']}")
-
-    return {"status": "received"}
-```
-
-</details>
-
-<details>
-<summary><b>View notification event types</b> (click to expand)</summary>
-
-<br/>
-
-**Status Update Event** - Sent when task state changes:
-```json
-{
-  "kind": "status-update",
-  "task_id": "123e4567-...",
-  "status": {"state": "working"},
-  "final": false
-}
-```
-
-**Artifact Update Event** - Sent when artifacts are generated:
-```json
-{
-  "kind": "artifact-update",
-  "task_id": "123e4567-...",
-  "artifact": {
-    "artifact_id": "456e7890-...",
-    "name": "results.json",
-    "parts": [...]
-  }
-}
-```
-
-</details>
-
-### ⚙️ Configuration
-
-<details>
-<summary><b>View configuration example</b> (click to expand)</summary>
-
-**Using `bindufy`:**
-
-```python
-from bindu.penguin.bindufy import bindufy
-
-def handler(messages):
-    return [{"role": "assistant", "content": messages[-1]["content"]}]
-
-config = {
-    "author": "you@example.com",
-    "name": "my_agent",
-    "description": "Agent with push notifications",
-    "deployment": {"url": "http://localhost:3773"},
-    "capabilities": {"push_notifications": True},
-    # Global webhook configuration is now set via environment variables:
-    # GLOBAL_WEBHOOK_URL and GLOBAL_WEBHOOK_TOKEN
-}
-
-bindufy(config, handler)
-```
-
-**Per-Task Webhook Override:**
-
-```python
-"configuration": {
-    "long_running": True,  # Persist webhook in database
-    "push_notification_config": {
-        "id": str(uuid4()),
-        "url": "https://custom-endpoint.com/webhooks",
-        "token": "custom_token_123"
-    }
-}
-```
-
-**Long-Running Tasks:**
-
-For tasks that run longer than typical request timeouts (minutes, hours, or days), set `long_running=True` to persist webhook configurations across server restarts. The webhook config will be stored in the database (`webhook_configs` table).
-
-</details>
-
-📖 **[Complete Documentation](docs/long-running-task-notifications.md)** - Detailed guide with architecture, security, examples, and troubleshooting.
 
 ---
 
