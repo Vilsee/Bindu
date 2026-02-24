@@ -28,7 +28,7 @@ class HealthcareComplianceAgent:
     def __init__(self):
         self.retriever = EvidenceRetriever()
         self.calibrator = ConfidenceCalibrator()
-        self.logger = AuditLogger()
+        self.logger = AuditLogger(log_dir="logs")
 
     def handle_message(self, task):
         """
@@ -58,10 +58,10 @@ class HealthcareComplianceAgent:
             print(">> BINDU_OS: Neuro_Specialist_Agent response: [VERIFIED_PROTOCOL_ALIGNMENT_99%]")
             task.collaboration_log = "Neuro_Specialist_Agent: Verified safety of protocol logic."
 
-        # 3. X402 Payment Simulation
-
         # 3. Confidence Calibration
-        confidence = self.calibrator.calculate(task.query, evidence)
+        # We need to pass matches as a list to the calibrator
+        matches = self.retriever.retrieve(task.query)
+        confidence, _ = self.calibrator.calibrate(task.query, matches)
         
         # 4. Role-Based Safety Gating
         recommendation = evidence['content']
@@ -72,7 +72,14 @@ class HealthcareComplianceAgent:
         sounds = evidence.get("therapeutic_sounds", [])
 
         # 6. Immutable Audit
-        audit_id = self.logger.log(task.query, recommendation, confidence, evidence['source'])
+        audit_id = self.logger.log_decision(
+            session_id=task.id,
+            role=task.role,
+            input_query=task.query,
+            recommendation=recommendation,
+            confidence_score=confidence,
+            sources=[evidence['source']]
+        )
 
         return {
             "status": "completed",
